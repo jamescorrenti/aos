@@ -43,6 +43,11 @@ int main(int argc, char **argv) {
 
   memset(&queue, 0, sizeof(queue));
   pthread_mutex_init(&queue.lock, NULL);
+  /*
+  * Issue 1: g_num_prod_lock was not initialized
+  * Fix 1: add a call to pthread_mutex_init
+  */
+  pthread_mutex_init(&g_num_prod_lock, NULL);
 
   g_num_prod = 1; /* there will be 1 producer thread */
 
@@ -56,9 +61,14 @@ int main(int argc, char **argv) {
 
   printf("Producer thread started with thread id %lu\n", producer_thread);
 
-  result = pthread_detach(producer_thread);
-  if (0 != result)
-    fprintf(stderr, "Failed to detach producer thread: %s\n", strerror(result));
+  /*
+  * Issue 2: The producer thread was joined and detached, causing the pthread_join(producer_thread) 
+  * call later to fail. 
+  * Fix 2: comment out the lines below
+  * result = pthread_detach(producer_thread);
+  * if (0 != result)
+  *   fprintf(stderr, "Failed to detach producer thread: %s\n", strerror(result));
+  */
 
   result = pthread_create(&consumer_thread, NULL, consumer_routine, &queue);
   if (0 != result) {
@@ -79,8 +89,14 @@ int main(int argc, char **argv) {
     fprintf(stderr, "Failed to join consumer thread: %s\n", strerror(result));
     pthread_exit(NULL);
   }
-  printf("\nPrinted %lu characters.\n", *(long*)thread_return);
-  free(thread_return);
+  
+  /*
+  * Issue 3: *(long*) thread_return was causing segfaults.
+  * Fix 3: consumer_return returns a long, casted as a void pointer. We can just recast as a long
+  * and get rid of the free call to avoid memory issues.
+  */
+  printf("\nPrinted %lu characters.\n", (long) thread_return);
+  //free(thread_return)
 
   pthread_mutex_destroy(&queue.lock);
   pthread_mutex_destroy(&g_num_prod_lock);
@@ -97,7 +113,6 @@ void *producer_routine(void *arg) {
   pthread_t consumer_thread;
   int result = 0;
   char c;
-
   result = pthread_create(&consumer_thread, NULL, consumer_routine, queue_p);
   if (0 != result) {
     fprintf(stderr, "Failed to create consumer thread: %s\n", strerror(result));
@@ -135,11 +150,20 @@ void *producer_routine(void *arg) {
     sched_yield();
   }
 
+  
+  /*
+  * Issue 4: g_num_prod is protected in a consumer routine, but not in the producer. 
+  * Producer could change it without a consumer knowing it. This could lead to undefined behavior in the consumer
+  * Fix 4: Use the g_num_prod_lock to protect the resource while its being edited
+  */
+
   /* Decrement the number of producer threads running, then return */
+
+  pthread_mutex_lock(&g_num_prod_lock);
   --g_num_prod;
+  pthread_mutex_unlock(&g_num_prod_lock);
   return (void*) 0;
 }
-
 
 /* consumer_routine - thread that prints characters off the queue */
 void *consumer_routine(void *arg) {
@@ -151,17 +175,14 @@ void *consumer_routine(void *arg) {
 
   /* terminate the loop only when there are no more items in the queue
    * AND the producer threads are all done */
-
   pthread_mutex_lock(&queue_p->lock);
   pthread_mutex_lock(&g_num_prod_lock);
-  while(queue_p->front != NULL || g_num_prod > 0) {
+  while( queue_p->front != NULL || g_num_prod > 0 ) {
     pthread_mutex_unlock(&g_num_prod_lock);
-
     if (queue_p->front != NULL) {
-
       /* Remove the prev item from the queue */
       prev_node_p = queue_p->front;
-
+      
       if (queue_p->front->next == NULL)
         queue_p->back = NULL;
       else
@@ -169,19 +190,28 @@ void *consumer_routine(void *arg) {
 
       queue_p->front = queue_p->front->next;
       pthread_mutex_unlock(&queue_p->lock);
-
+      
       /* Print the character, and increment the character count */
       printf("%c", prev_node_p->c);
+
       free(prev_node_p);
+      
       ++count;
     }
     else { /* Queue is empty, so let some other thread run */
+      
       pthread_mutex_unlock(&queue_p->lock);
       sched_yield();
     }
+    /*
+    * Issue 5: Consumer thread was only locking the queue_p and g_num_prod_lock mutexs
+    * the first time being called. After the first call, there were no calls to lock inside the while loop
+    * Fix 5: add mutex locks at the end of the loop
+    */
+    pthread_mutex_lock(&queue_p->lock);
+    pthread_mutex_lock(&g_num_prod_lock);
   }
   pthread_mutex_unlock(&g_num_prod_lock);
   pthread_mutex_unlock(&queue_p->lock);
-
   return (void*) count;
 }

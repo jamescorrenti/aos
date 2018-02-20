@@ -1,6 +1,6 @@
 #!/bin/bash
 
-vmname=test1
+vmname=test
 release=xenial
 
 if [[ $(uvt-simplestreams-libvirt query) ]]; then
@@ -12,15 +12,18 @@ fi
 
 echo "checking if VM created"
 
-if [[ $(uvt-kvm list | grep $vmname) ]]; then
-    echo "$vmname already exists"
-else
-    echo "Creating VM $vmname"
-    uvt-kvm create $vmname release=$release
-    echo "Waiting for $vmname"
-    uvt-kvm wait $vmname --insecure
-fi
-
-echo "Connecting to VM $vmname"
-uvt-kvm ssh $vmname --insecure
+for((i=0; i <8; i++))
+do
+    if [[ $(uvt-kvm list | grep $vmname$i) ]]; then
+        echo "$vmname already exists"
+    else
+        echo "Creating VM $vmname$i"
+        uvt-kvm create $vmname$i release=$release
+        echo "Waiting for $vmname$i"
+        uvt-kvm wait $vmname$i --insecure
+	virsh shutdown $vmname$i
+    fi
+done
+#echo "Connecting to VM $vmname"
+#uvt-kvm ssh $vmname --insecure
 

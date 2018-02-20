@@ -13,7 +13,6 @@
 } while(0)
 
 static const long NANOSECOND = 1000000000.0;
-static const float SWITCH = 500.0;
 
 struct CPUStats {
 	double cpu_usage;
@@ -64,7 +63,6 @@ float current_run_time(struct timespec start_time)
 {
 	struct timespec current_time;
 	clock_gettime(CLOCK_REALTIME, &current_time);
-	//printf("Time ran: %f\n", (float) (time_convert(current_time) - time_convert(start_time)));
 	return (float) (time_convert(current_time) - time_convert(start_time)) / NANOSECOND;
 }
 
@@ -166,6 +164,7 @@ int main(int argc, char *argv[])
 		numDomains = virConnectListAllDomains(conn, &doms, VIR_CONNECT_LIST_DOMAINS_ACTIVE);
 
 		struct VCPUstats vcpus[numDomains];
+
 		struct CPUStats cpus[maxcpus];
 		initialize_CPUstats(cpus, maxcpus);
 
@@ -221,9 +220,6 @@ int main(int argc, char *argv[])
 			printf("CPU %d, vCPUs assigned %d, usage %.2f%%\n", i,cpus[i].cpu, cpus[i].cpu_usage);
 		}
 
-		/*OK, so we have CPU utilization and data on which CPUS have more VCPUS, 
-		what now? Determine the most congested CPUS and move to least congested CPUS */
-		
 		int busy_cpu = 0;
 		int free_cpu = 0;
 		
@@ -237,8 +233,7 @@ int main(int argc, char *argv[])
 		printf("Busiest CPU: %d Friest CPU: %d\n", busy_cpu, free_cpu);
 		
 		if (busy_cpu == free_cpu){
-			not_balanced = 0;
-			break;
+			printf("We are balanced\n");
 		}
 		else {
 			int delta = (cpus[busy_cpu].cpu - cpus[free_cpu].cpu) / 2;
@@ -275,6 +270,7 @@ int main(int argc, char *argv[])
 	}
 	printf("Balanced and Exiting\n");
 	return_value = 0;
+	goto clean;
 
 	clean:
 		

@@ -4577,73 +4577,73 @@ Untracked files:
 ]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git add start_vm.sh 
 ]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git add Memory/N[KMakefile 
 ]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git add Memory/memory_coordinator
-]0;dev@ubuntu: ~/src/test6']
-3: 57.0 ['test1', 'test5']
---------------------------------------------------------------------------------
-test0: ([(0, 1, 103360000000L, 2)], [(True, True, True, True)])
-test1: ([(0, 1, 108640000000L, 3)], [(False, False, False, True)])
-test2: ([(0, 1, 102440000000L, 0)], [(True, True, True, True)])
-test3: ([(0, 1, 104530000000L, 1)], [(False, True, False, False)])
-test4: ([(0, 1, 140930000000L, 0)], [(True, False, False, False)])
-test5: ([(0, 1, 110860000000L, 3)], [(False, False, False, True)])
-test6: ([(0, 1, 119940000000L, 2)], [(False, False, True, False)])
-test7: ([(0, 1, 119830000000L, 1)], [(False, True, False, False)])
---------------------------------------------------------------------------------
-0: 58.0 ['test2', 'test4']
-1: 58.0 ['test3', 'test7']
-2: 58.0 ['test0', 'test6']
-3: 56.0 ['test1', 'test5']
---------------------------------------------------------------------------------
-^CTraceback (most recent call last):
-  File "./monitor.py", line 72, in <module>
-    s.run()
-  File "/usr/lib/python2.7/sched.py", line 111, in run
-    delayfunc(time - now)
-KeyboardInterrupt
-]0;dev@ubuntu: ~/src/AdvancedOS/project1/cs6210Project1_test/test/cpu[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1/cs6210Project1_test/test/cpu[00m$ ^C
-]0;dev@ubuntu: ~/src/AdvancedOS/project1/cs6210Project1_test/test/cpu[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1/cs6210Project1_test/test/cpu[00m$ exit
-exit
-Script done, file is vcpu_scheduler4.log
-]0;dev@ubuntu: ~/src/AdvancedOS/project1/cs6210Project1_test/test/cpu[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1/cs6210Project1_test/test/cpu[00m$ script vcpu_sccheduler4.log[1P.log5.log
-Script started, file is vcpu_scheduler5.log
-]0;dev@ubuntu: ~/src/AdvancedOS/project1/cs6210Project1_test/test/cpu[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1/cs6210Project1_test/test/cpu[00m$ exit./monitor.py  [A
-test0: ([(0, 1, 109660000000L, 0)], [(True, True, True, True)])
-test1: ([(0, 1, 114790000000L, 0)], [(True, True, True, True)])
-test2: ([(0, 1, 108880000000L, 1)], [(True, True, True, True)])
-test3: ([(0, 1, 110880000000L, 2)], [(True, True, True, True)])
-test4: ([(0, 1, 146980000000L, 3)], [(True, True, True, True)])
-test5: ([(0, 1, 116820000000L, 3)], [(True, True, True, True)])
-test6: ([(0, 1, 125990000000L, 2)], [(True, True, True, True)])
-test7: ([(0, 1, 125760000000L, 1)], [(True, True, True, True)])
---------------------------------------------------------------------------------
-0: 0.0 []
-1: 0.0 []
-2: 0.0 []
-3: 0.0 []
---------------------------------------------------------------------------------
-test0: ([(0, 1, 110190000000L, 1)], [(True, True, True, True)])
-test1: ([(0, 1, 115310000000L, 0)], [(True, True, True, True)])
-test2: ([(0, 1, 109390000000L, 2)], [(True, True, True, True)])
-test3: ([(0, 1, 111380000000L, 2)], [(True, True, True, True)])
-test4: ([(0, 1, 147420000000L, 3)], [(True, True, True, True)])
-test5: ([(0, 1, 117260000000L, 1)], [(True, True, True, True)])
-test6: ([(0, 1, 126440000000L, 3)], [(True, True, True, True)])
-test7: ([(0, 1, 126160000000L, 0)], [(True, True, True, True)])
---------------------------------------------------------------------------------
-0: 92.0 ['test1', 'test7']
-1: 97.0 ['test0', 'test5']
-2: 101.0 ['test2', 'test3']
-3: 89.0 ['test4', 'test6']
---------------------------------------------------------------------------------
-test0: ([(0, 1, 110670000000L, 2)], [(True, True, True, True)])
-test1: ([(0, 1, 115870000000L, 1)], [(True, True, True, True)])
-test2: ([(0, 1, 109870000000L, 0)], [(True, True, True, True)])
-test3: ([(0, 1, 111860000000L, 2)], [(True, True, True, True)])
-test4: ([(0, 1, 147780000000L, 3)], [(True, True, True, True)])
-test5: ([(0, 1, 117640000000L, 0)], [(True, True, True, True)])
-test6: ([(0, 1, 126840000000L, 3)], [(True, True, True, True)])
-test7: ([(0, 1, 126570000000L, 3)], [(True, True, True, True)])
---------------------------------------------------------------------------------
+]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git add Memory/memory_coordinator*
+]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git rm Memory/M[Kmemory_coordinator
+error: the following file has changes staged in the index:
+    project1/Memory/memory_coordinator
+(use --cached to keep the file, or -f to force removal)
+]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git status
+On branch jcorrenti3/project1/vcpu_scheduler
+Your branch is up-to-date with 'origin/jcorrenti3/project1/vcpu_scheduler'.
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+	[32mmodified:   CPU/README.md[m
+	[32mmodified:   CPU/vcpu_scheduler.c[m
+	[32mmodified:   CPU/vcpu_scheduler1.log[m
+	[32mmodified:   CPU/vcpu_scheduler2.log[m
+	[32mmodified:   CPU/vcpu_scheduler3.log[m
+	[32mmodified:   CPU/vcpu_scheduler4.log[m
+	[32mmodified:   CPU/vcpu_scheduler5.log[m
+	[32mnew file:   Memory/Makefile[m
+	[32mmodified:   Memory/README.md[m
+	[32mnew file:   Memory/memory_coordinator[m
+	[32mmodified:   Memory/memory_coordinator.c[m
+	[32mnew file:   Memory/memory_coordinator1.log[m
+	[32mnew file:   Memory/memory_coordinator2.log[m
+	[32mnew file:   Memory/memory_coordinator3.log[m
+	[32mmodified:   start_vm.sh[m
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	[31mdeleted:    Memory/make[m
+	[31mmodified:   cs6210Project1_test/test/memory/monitor.py[m
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	[31mMakefile[m
+	[31mcs6210Project1_test/test/cpu/testcases/1/iambusy[m
+	[31mcs6210Project1_test/test/cpu/testcases/2/iambusy[m
+	[31mcs6210Project1_test/test/cpu/testcases/3/iambusy[m
+	[31mcs6210Project1_test/test/cpu/testcases/4/iambusy[m
+	[31mcs6210Project1_test/test/cpu/testcases/5/iambusy[m
+	[31mcs6210Project1_test/test/memory/testcases/1/run[m
+	[31mcs6210Project1_test/test/memory/testcases/2/run[m
+	[31mcs6210Project1_test/test/memory/testcases/3/run[m
+	[31mshared/[m
+	[31mtest[m
+
+]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git [K[K[K[Kgit commit -m ""[Kfinished project"
+[jcorrenti3/project1/vcpu_scheduler f50d60b] finished project
+ 15 files changed, 15266 insertions(+), 128131 deletions(-)
+ rewrite project1/CPU/README.md (99%)
+ rewrite project1/CPU/vcpu_scheduler1.log (99%)
+ rewrite project1/CPU/vcpu_scheduler2.log (93%)
+ rewrite project1/CPU/vcpu_scheduler3.log (93%)
+ rewrite project1/CPU/vcpu_scheduler4.log (83%)
+ rewrite project1/CPU/vcpu_scheduler5.log (78%)
+ create mode 100644 project1/Memory/Makefile
+ create mode 100755 project1/Memory/memory_coordinator
+ create mode 100644 project1/Memory/memory_coordinator1.log
+ create mode 100644 project1/Memory/memory_coordinator2.log
+ create mode 100644 project1/Memory/memory_coordinator3.log
+]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git c[Kpush
+Counting objects: 20, done.
+Delta compression using up to 4 threads.
+Compressing objects:   5% (1/20)   Compressing objects:  10% (2/20)   Compressing objects:  15% (3/20)   Compressing objects:  20% (4/20)   Compressing objects:  25% (5/20)   Compressing objects:  30% (6/20)   Compressing objects:  35% (7/20)   Compressing objects:  40% (8/20)   Compressing objects:  45% (9/20)   Compressing objects:  50% (10/20)   Compressing objects:  55% (11/20)   Compressing objects:  60% (12/20)   Compressing objects:  65% (13/20)   Compressing objects:  70% (14/20)   Compressing objects:  75% (15/20)   Compressing objects:  80% (16/20)   Compressing objects:  85% (17/20)   Compressing objects:  90% (18/20)   Compressing objects:  95% (19/20)   Compressing objects: 100% (20/20)   C---
 0: 86.0 ['test2', 'test5']
 1: 56.0 ['test1']
 2: 96.0 ['test0', 'test3']
@@ -5073,4 +5073,72 @@ Untracked files:
 
 ]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git add Memory/README.md Memory/memory_coorrdinator.c 
 ]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git add start_vm.sh 
-]0;dev@ubuntu: ~/src/AdvancedOS/pr
+]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git add Memory/N[KMakefile 
+]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git add Memory/memory_coordinator
+]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git add Memory/memory_coordinator*
+]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git rm Memory/M[Kmemory_coordinator
+error: the following file has changes staged in the index:
+    project1/Memory/memory_coordinator
+(use --cached to keep the file, or -f to force removal)
+]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git status
+On branch jcorrenti3/project1/vcpu_scheduler
+Your branch is up-to-date with 'origin/jcorrenti3/project1/vcpu_scheduler'.
+Changes to be committed:
+  (use "git reset HEAD <file>..." to unstage)
+
+	[32mmodified:   CPU/README.md[m
+	[32mmodified:   CPU/vcpu_scheduler.c[m
+	[32mmodified:   CPU/vcpu_scheduler1.log[m
+	[32mmodified:   CPU/vcpu_scheduler2.log[m
+	[32mmodified:   CPU/vcpu_scheduler3.log[m
+	[32mmodified:   CPU/vcpu_scheduler4.log[m
+	[32mmodified:   CPU/vcpu_scheduler5.log[m
+	[32mnew file:   Memory/Makefile[m
+	[32mmodified:   Memory/README.md[m
+	[32mnew file:   Memory/memory_coordinator[m
+	[32mmodified:   Memory/memory_coordinator.c[m
+	[32mnew file:   Memory/memory_coordinator1.log[m
+	[32mnew file:   Memory/memory_coordinator2.log[m
+	[32mnew file:   Memory/memory_coordinator3.log[m
+	[32mmodified:   start_vm.sh[m
+
+Changes not staged for commit:
+  (use "git add/rm <file>..." to update what will be committed)
+  (use "git checkout -- <file>..." to discard changes in working directory)
+
+	[31mdeleted:    Memory/make[m
+	[31mmodified:   cs6210Project1_test/test/memory/monitor.py[m
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+
+	[31mMakefile[m
+	[31mcs6210Project1_test/test/cpu/testcases/1/iambusy[m
+	[31mcs6210Project1_test/test/cpu/testcases/2/iambusy[m
+	[31mcs6210Project1_test/test/cpu/testcases/3/iambusy[m
+	[31mcs6210Project1_test/test/cpu/testcases/4/iambusy[m
+	[31mcs6210Project1_test/test/cpu/testcases/5/iambusy[m
+	[31mcs6210Project1_test/test/memory/testcases/1/run[m
+	[31mcs6210Project1_test/test/memory/testcases/2/run[m
+	[31mcs6210Project1_test/test/memory/testcases/3/run[m
+	[31mshared/[m
+	[31mtest[m
+
+]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git [K[K[K[Kgit commit -m ""[Kfinished project"
+[jcorrenti3/project1/vcpu_scheduler f50d60b] finished project
+ 15 files changed, 15266 insertions(+), 128131 deletions(-)
+ rewrite project1/CPU/README.md (99%)
+ rewrite project1/CPU/vcpu_scheduler1.log (99%)
+ rewrite project1/CPU/vcpu_scheduler2.log (93%)
+ rewrite project1/CPU/vcpu_scheduler3.log (93%)
+ rewrite project1/CPU/vcpu_scheduler4.log (83%)
+ rewrite project1/CPU/vcpu_scheduler5.log (78%)
+ create mode 100644 project1/Memory/Makefile
+ create mode 100755 project1/Memory/memory_coordinator
+ create mode 100644 project1/Memory/memory_coordinator1.log
+ create mode 100644 project1/Memory/memory_coordinator2.log
+ create mode 100644 project1/Memory/memory_coordinator3.log
+]0;dev@ubuntu: ~/src/AdvancedOS/project1[01;32mdev@ubuntu[00m:[01;34m~/src/AdvancedOS/project1[00m$ git c[Kpush
+Counting objects: 20, done.
+Delta compression using up to 4 threads.
+Compressing objects:   5% (1/20)   Compressing objects:  10% (2/20)   Compressing objects:  15% (3/20)   Compressing objects:  20% (4/20)   Compressing objects:  25% (5/20)   Compressing objects:  30% (6/20)   Compressing objects:  35% (7/20)   Compressing objects:  40% (8/20)   Compressing objects:  45% (9/20)   Compressing objects:  50% (10/20)   Compressing objects:  55% (11/20)   Compressing objects:  60% (12/20)   Compressing objects:  65% (13

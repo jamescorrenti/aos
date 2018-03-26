@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <omp.h>
 #include <sys/utsname.h>
-
+#include "gtmp.h"
+#include <time.h>
 
 int main(int argc, char **argv)
 {
@@ -18,20 +19,25 @@ int main(int argc, char **argv)
   omp_set_dynamic(0);
   if (omp_get_dynamic()) {printf("Warning: dynamic adjustment of threads has been set\n");}
   omp_set_num_threads(num_threads);
+  gtmp_init(num_threads);
+  clock_t begin = clock();
 
 #pragma omp parallel
   {
     int thread_num = omp_get_thread_num();
-    struct utsname ugnm;
     
-    num_threads = omp_get_num_threads();
-    uname(&ugnm);
+    //printf("Thread %d reached the barrier.\n", thread_num); // num_threads, ugnm.nodename);
+    
+    gtmp_barrier(thread_num);
 
-    printf("Hello World from thread %d of %d, running on %s.\n", thread_num, num_threads, ugnm.nodename);
-  } // implied barrier
-
+    //printf("Thread %d is past the barrier.\n", thread_num);    
+  } 
+  clock_t end = clock();
   // Resume serial code
-  printf("Back in the serial section again\n");
+  printf("Serial section resuming, execution time: %f\n", (double) (end - begin) / CLOCKS_PER_SEC);
+  gtmp_finalize();
   return 0;
+
+
 }
 

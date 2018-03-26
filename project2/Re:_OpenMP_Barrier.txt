@@ -15,4 +15,34 @@ attached along with the data from the experiments.
 
 Looking forward to your insight!
 
+Response:
+
+Theses are interesting results and after looking at the E5-2630 data sheet
+and how you conducted your tests, I believe that you might have skewed your results since
+the E5-2630 is a cache coherent (CC) processor and everything was run on a single machines. Many
+of the algorithms optimize to reduce network contention, but on a single machine
+this overhead could cause decrease in performance. The counter algorithm is the 
+simplest algorithm and performs extremely well on CC processors and is the reason why
+it performs so well on your tests. The  tree algorithm performs the worst, 
+because it requires spinning on memory locations that are not statically determined,
+maybe it was not optimized to obtain a local cache of data the processor needed in order to 
+reduce network contention. I noticed that for the tree implementation there 
+are also spikes around powers of 2 - when there would be an extra layer of leds added 
+to the tree, further me believe there is an issue with contention.
+
+It is also not surprising that the tournament barrier out performs the dissemination barrier.
+It has been show , that in systems with under 16 processes the tournament
+barrier will perform better because the dissemination barrier optimizes to reduce network contention, but that optimization only comes into affect after 16 processors. The fact that a single cache coherent system was used explains why the network contention affect did not 
+affect the tournaments performance more after 16 threads. MCS optimizes the most 
+for low network contention - so it follows that on a single computer, the
+optimization is not as useful and led to it having one of the poorest performances.
+
+It is also no surprise that when OMP is used to optimize that the performance
+is one of the best - I assume that your are taking advantage of the CPU's
+ability to run these threads in parallel.
+
+It would be really interesting to see how the results would differ on different
+hardware run on multiple machines connected on a network to see how your results
+would vary.
+
 

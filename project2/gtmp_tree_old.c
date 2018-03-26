@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <omp.h>
 #include "gtmp.h"
-#include <unistd.h>
 
 /*
 
@@ -10,9 +9,9 @@
 
     type node = record
         k : integer //fan in of this node
-      	count : integer // initialized to k
-      	locksense : Boolean // initially false
-      	parent : ^node // pointer to parent node; nil if root
+	count : integer // initialized to k
+	locksense : Boolean // initially false
+	parent : ^node // pointer to parent node; nil if root
 
 	shared nodes : array [0..P-1] of node
 	    //each element of nodes allocated in a different memory module or cache line
@@ -63,13 +62,9 @@ void gtmp_init(int num_threads){
   
   num_nodes = v - 1;
   num_leaves = v/2;
-  
-  /* Using posix_memalign() instead of mallocallows us to have avoid having threads spinning 
-  and updating  the same segmentation of the cache, causing issues where one thread will 
-  invlidate another Thread's cache without actually updating memory that the second thread 
-  cares about*/
-  // nodes = (node_t*) malloc(num_nodes * sizeof(node_t));
-  posix_memalign((void **) &nodes, LEVEL1_DCACHE_LINESIZE, num_nodes * sizeof(node_t));
+  //printf("This is num_threads %d, v: %d,num_nodes %d, num_leaves: %d \n", num_threads, v, num_nodes, num_leaves);
+  /* Setting up the tree */
+  nodes = (node_t*) malloc(num_nodes * sizeof(node_t));
 
   for(i = 0; i < num_nodes; i++){
     curnode = _gtmp_get_node(i);
@@ -98,35 +93,36 @@ void gtmp_barrier(){
   gtmp_barrier_aux(mynode, sense);
 }
 
-void gtmp_barrier_aux(node_t* node, int sense){
-
-/*
-This section does not allow this code to run in parrallel and is blocking, 
-__sync_fetch_and_sub() uses atomic instructions and does not require this section
-of code to be run serially.
-
-#pragma omp critical
-{
-  test = node->count;
-  node->count--;
+int fetch_and_decrement(int *count){
+    int new_count;
+    #pragma omp atomic read 
+        new_count = *count;
+    
+    #pragma omp atomic write
+        *count = new_count - 1;
+    return new_count;
 }
-*/
 
-  if (__sync_fetch_and_sub(&node->count, 1) == 1){
+void gtmp_barrier_aux(node_t* node, int sense){
+  int test;
+  /*
+  Using the atomic construct instead of the critical, allows updates of two firrefecnet 
+  elements of node->count to occur in parallel. Removing the omp critical sections means 
+  that all of updates to count would be executed serially, decreasing perfomances
+*/
+  #pragma omp critical
+  {
+    test = node->count;
+    node->count--;
+  }
+
+  if (test == 1){
     if(node->parent != NULL)
       gtmp_barrier_aux(node->parent, sense);
     node->count = node->k;
     node->locksense = !node->locksense;
   }
-
-  // There is high CPU contention, threads that are waiting will dominate the CPU
-  // never letting control go back to threads that need to work in order to allow 
-  // other threads to complete. The taskyield pragma helps alleviate that contention
-  # pragma omp task
-    while (node->locksense != sense){
-      usleep(10);
-      # pragma omp taskyield
-    };
+  while (node->locksense != sense);
 }
 
 void gtmp_finalize(){

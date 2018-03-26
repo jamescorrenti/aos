@@ -21,43 +21,29 @@
 */
 
 bool sense = true;
-bool local_sense = false;
 static int total_threads;
 int count;
-
-
-int fetch_and_decrement(int *count){
-    int new_count;
-    #pragma omp atomic read 
-        new_count = *count;
-    
-    #pragma omp atomic write
-        *count = new_count - 1;
-    return new_count;
-}
 
 void gtmp_init(int num_threads){
     total_threads = num_threads;
     count = num_threads;
 }
 
-void gtmp_barrier(){
-    
-    if (fetch_and_decrement(&count) == 1)
-    {
-        printf("Unlocking\n");
+void gtmp_barrier(){    
+    bool local_sense = false;
+    if (__sync_fetch_and_sub(&count, 1)  == 1)
+    { 
         count = total_threads;
         sense = local_sense;
     }
-    else
-    {
-        while(sense != local_sense)
-        {
-            printf("Thread spinning\n");
-            usleep(1);
-        }
-    }
-    printf("Thread Exiting\n");
+    
+    # pragma omp task
+        while(sense != local_sense){
+            # pragma omp taskyield
+            usleep(10000);
+        };        
+    
+
 }
 
 void gtmp_finalize(){

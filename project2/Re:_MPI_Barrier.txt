@@ -15,3 +15,15 @@ a dedicated cluster with one process assigned to each node.
 Details individual nodes are attached along with the data from the experiments.
 
 Looking forward to your insight!
+
+
+Response:
+
+It's once again really interesting to see that your results have the counter algorithm
+performing the best. It seems apparent to me that when there is little network contention
+when there are so few nodes operating on such a high speed network. The large jump that
+it takes between 13 and 14 nodes indicates to me that you would see the counter algo performance
+really take a hit as more and more nodes were added and traffic contention increased. 
+
+The rest of the algorithm seem to perform about the same as each other, with the exceptions
+of the tournament and MCS sticking out as having some of the noticeably worse performances. This makes sense since those involve the most waiting on other process to communicate there status to them. 

@@ -1,0 +1,16 @@
+# Project 3
+
+# Store
+Store Service class is my main class that handles both client requests and requests out to the vendors. To accomplish both, their are two subclasses, the ServerClient and the StoreData classes. The StoreData class is called to process incoming RPC requests from clients and creates its own ServerClients (one for each vendor) to handle messaging from the vendors. The Store Service class also has a HandleRpcs function that actually processes the messages and adds the request to thread pool using a lambda function.
+
+The StoreClient class handles messaging with a single vendor for a given product name.
+
+The main function ensures that the right variables were passed at runtime, reads in the vendors from file and starts the Store Service Server.
+
+# Note
+
+I templated my store server after Google's grpc async_server helloworld example found at: https://github.com/grpc/grpc/blob/master/examples/cpp/helloworld/greeter_async_server.cc
+
+Their server implementation was based off receiving a message from the user and responding with a simple response. In order to complete this project I had to extend their framework to handle the unique RPC calls for store, and then instead of just responding with a simple string, the store server acts like a client and sends RPC to each vendor server. Additionally, a thread pool was added to allow for multiple threads to do work. 
+ 
+

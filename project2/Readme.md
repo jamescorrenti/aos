@@ -113,7 +113,7 @@ Your tasks for this part of the project are to:
 
 * * *
 ## Distributed Memory with MPI
-Although Mellor-Crummey and Scott describe algorithms for a shared memory environment, it is straightforward to adapt them to a distributed one.  Instead of spinning on a variable waiting for its value to be changed, a thread waits for a message from another thread.
+Although Mellor-Crummey and Scott describe algorithms for a shared memory environment, it is straightforward to adapt them to a distributed one. Instead of spinning on a variable waiting for its value to be changed, a thread waits for a message from another thread.
 
 The standard framework for message passing in high performance parallel computing is MPI.  More specifically, we will use the openmpi implementation of MPI-2.  A simple MPI program using barrier would look like this 
 

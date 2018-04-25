@@ -11,6 +11,7 @@ MR_WORKER_LIB = -L../external/lib -lmr_worker
 all: mrdemo mr_worker
 
 mrdemo: main.o
+	make -C ../src
 	$(CXX) $^ -o $@ $(LDFLAGS) $(MAPREDUCE_LIB) $(LDFLAGS)
 
 mr_worker: user_tasks.o
@@ -21,3 +22,4 @@ mr_worker: user_tasks.o
 
 clean:
 	rm -f *.o *.pb.cc *.pb.h mrdemo mr_worker
+	make clean -C ../src

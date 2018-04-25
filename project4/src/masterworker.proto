@@ -1,3 +1,34 @@
 syntax = "proto3";
 
 package masterworker;
+
+service MapperReducer {
+	rpc Map (MapIn) returns (MapEmit) {}
+	rpc Reduce (ReduceIn) returns (ReduceEmit) {}
+}
+
+message MapIn {
+	repeated Shard in_shards = 1;
+	string user_id = 2;
+	string output = 3;
+}
+
+message MapEmit {
+	repeated string output_file = 1;	
+}
+
+message ReduceIn {	
+	string user_id = 1;
+	string int_file = 2;
+	string out_dir = 3;
+}
+
+message ReduceEmit {
+	string out_file = 1;
+}
+
+message Shard {
+	string file = 1;
+	double start_pos = 2;
+	double end_pos = 3;
+}

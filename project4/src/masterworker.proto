@@ -20,7 +20,7 @@ message MapEmit {
 message ReduceIn {	
 	string user_id = 1;
 	string int_file = 2;
-	string out_dir = 3;
+	string out_file = 3;
 }
 
 message ReduceEmit {
@@ -29,6 +29,6 @@ message ReduceEmit {
 
 message Shard {
 	string file = 1;
-	double start_pos = 2;
-	double end_pos = 3;
+	int32 start_pos = 2;
+	int32 end_pos = 3;
 }

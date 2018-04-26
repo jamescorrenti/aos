@@ -16,6 +16,7 @@ struct FileShard {
 	int start_pos;
 	string end_file;
 	int end_pos;
+	int shard_num;
 };
 
 
@@ -32,7 +33,9 @@ inline bool shard_files(const MapReduceSpec& mr_spec, vector<FileShard>& fileSha
 
 	fs.start_file = mr_spec.input_files.at(0).name;
 	fs.start_pos = file_sharded;
-	//int i = 0;
+	
+	int i = 0;
+	//fs.shard_num = i;
 	int size_cur_file;
 	
 
@@ -69,11 +72,13 @@ inline bool shard_files(const MapReduceSpec& mr_spec, vector<FileShard>& fileSha
 						file_sharded += 100;
 				}
 				file_sharded += nl;
-				//std::cout << "bye" << std::endl;
+				// std::cout << "bye" << std::endl;
 				// std::cout << "Next new line: " << nl << std::endl;
 				// std::cout << "Start File " << mr_spec.input_files.at(i) << " i: " << i << std::endl;	
 				fs.end_file = iter->name;
 				fs.end_pos = file_sharded;
+				fs.shard_num = i;
+				i++;
 				fileShards.push_back(fs);
 
 				fs.start_file = iter->name;					
@@ -88,7 +93,7 @@ inline bool shard_files(const MapReduceSpec& mr_spec, vector<FileShard>& fileSha
 				current_shard += size_cur_file - file_sharded;
 				file_sharded = 0;
 				//std::cout << "Size of chard " << current_shard << std::endl;
-				//i++
+				
 				break;
 			}	
 		}
@@ -97,6 +102,7 @@ inline bool shard_files(const MapReduceSpec& mr_spec, vector<FileShard>& fileSha
 
 	fs.end_file = mr_spec.input_files.back().name;
 	fs.end_pos =  mr_spec.input_files.back().file_size;
+	fs.shard_num = i;
 	fileShards.push_back(fs);
 	
 	for (vector<FileShard>::const_iterator iter = fileShards.begin(); iter != fileShards.end(); ++iter){

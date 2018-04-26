@@ -4,7 +4,11 @@
 #include <grpc++/grpc++.h>
 #include <memory>
 #include <fstream>
-
+#include <string>
+#include <iostream>
+#include <sstream>
+#include <stdio.h>
+#include <vector> 
 #include "masterworker.grpc.pb.h"
 #include "mr_tasks.h"
 
@@ -29,8 +33,21 @@ using masterworker::Shard;
 using std::string;
 using std::vector;
 
+inline vector<string> split(string &s, char delim) {
+	std::stringstream ss { s };
+	string item;
+	std::vector<string> token;
+	while(getline(ss,item,delim)){
+		token.push_back(item);
+	}
+	return token;
+}
+
 /* CS6210_TASK: Handle all the task a Worker is supposed to do.
 	This is a big task for this project, will test your understanding of map reduce */
+
+extern std::shared_ptr<BaseMapper> get_mapper_from_task_factory(const std::string& user_id);
+extern std::shared_ptr<BaseReducer> get_reducer_from_task_factory(const std::string& user_id);
 
 class Worker {
 
@@ -46,54 +63,88 @@ class Worker {
 		
 		std::unique_ptr<Server> server_;
 
+		class MapReduceImpl final: public MapperReducer::Service {
+			Status Map(ServerContext* context, const MapIn* request, MapEmit* response){
+				std::cout << "mapping";
+				
+				auto mapper = get_mapper_from_task_factory(request->user_id());
+				
+				vector<string> buffers;
+				for (const auto r : request->in_shards()){
+				
+					int size = r.end_pos() - r.start_pos();
+					
+					vector<char> buff(size);
+
+					std::ifstream in_file { r.file(), std::ios::binary | std::ios::ate };
+
+					in_file.seekg(r.start_pos(), std::ios::beg);
+					in_file.read(&buff[0], size);
+
+					in_file.close();
+					
+					string str { buff.begin(), buff.end() };
+
+					// find if there are any / ... this will prob fail if there is more than 1 /
+					int pos = r.file().find('/');
+
+					if( pos > r.file().length()) {
+						pos = 0;
+					} else {
+						pos = pos + 1;	
+					}
+
+					// naming convention for outfile is <file_name>/start_pos-end_pos
+					string out_file = request->output() + "/" + r.file().substr(pos) + "-" + std::to_string(r.start_pos()) + "-" + std::to_string(r.end_pos());
+					mapper->impl_->intermediate_file = out_file;
+					
+					mapper->map(str);
+					
+
+					response->add_output_file(out_file);
+				}
+				std::cout << "done";
+
+				return Status::OK;
+
+			}
+
+			Status Reduce(ServerContext* context, const ReduceIn* request, ReduceEmit* response){
+				auto reducer = get_reducer_from_task_factory(request->user_id());
+				
+				std::ifstream in_file { request->int_file() };
+				string s;
+				std::map<string, int> reduce_map;
+				vector<string> token;
+				reducer->impl_->out_file = request->out_file();
+
+				while(getline(in_file, s)){	
+					if (!s.empty()) {
+						token = split(s, ' ');
+						string q = token.front();
+						int b = std::stoi(token.back());
+
+						auto it = reduce_map.find(q);
+						
+						if (it != reduce_map.end()) {
+							it->second = it->second +  b;
+						}
+						else {
+							reduce_map.emplace(q, b);
+						}
+					}
+				}
+
+				for (std::map<string,int>::iterator iter=reduce_map.begin(); iter != reduce_map.end(); ++iter){
+					reducer->reduce(iter->first, std::vector<std::string>({std::to_string(iter->second)}));
+				}
+				remove(request->int_file().c_str());				
+				return Status::OK;		
+			}
+		};
 };
 
-extern std::shared_ptr<BaseMapper> get_mapper_from_task_factory(const std::string& user_id);
-extern std::shared_ptr<BaseReducer> get_reducer_from_task_factory(const std::string& user_id);
 
-class MapReduceImpl final: public MapperReducer::Service {
-	Status Map(ServerContext* context, const MapIn* request, MapEmit* response){
-		std::cout << " Mapper Tworking" <<std::endl;
-		
-		auto mapper = get_mapper_from_task_factory(request->user_id());
-		
-		vector<string> buffers;
-		for (const auto r : request->in_shards()){
-		
-			int size = r.end_pos() - r.start_pos();
-			
-			vector<char> buff(size);
-
-			std::ifstream in_file { r.file(), std::ios::binary | std::ios::ate };
-
-			in_file.seekg(r.start_pos(), std::ios::beg);
-			in_file.read(&buff[0], size);
-
-			in_file.close();
-			
-			string str { buff.begin(), buff.end() };
-			string out = "output/int.txt";
-			// string out_file = request->output() + "/" + r.file() + "-" + std::to_string(r.start_pos()) + "-" + std::to_string(r.end_pos());
-			// std::cout << "Intermeddiate file " << out_file << std::endl;
-			mapper->map(str);
-			mapper->impl_->test();
-
-			string *reply = response->add_output_file();
-			//reply = &out_file;
-			reply = &out;
-		}
-
-		return Status::OK;
-
-	}
-
-	Status Reduce(ServerContext* context, const ReduceIn* request, ReduceEmit* response){
-		std::cout << "Reduce Tworking" <<std::endl;
-		auto reducer = get_reducer_from_task_factory(request->user_id());
-		reducer->reduce("dummy", std::vector<std::string>({"1", "1"}));
-		return Status::OK;		
-	}
-};
 /* CS6210_TASK: ip_addr_port is the only information you get when started.
 	You can populate your other class data members here if you want */
 Worker::Worker(string ip_addr_port) {
@@ -105,9 +156,7 @@ Worker::Worker(string ip_addr_port) {
 	Note that you have the access to BaseMapper's member BaseMapperInternal impl_ and 
 	BaseReduer's member BaseReducerInternal impl_ directly, 
 	so you can manipulate them however you want when running map/reduce tasks*/
-bool Worker::run() {
-
-	std::cout << "Tworking" <<std::endl;	
+bool Worker::run() {	
 	ServerBuilder builder;
 	MapReduceImpl service_;
 	builder.AddListeningPort(ip_addr_port_, grpc::InsecureServerCredentials());

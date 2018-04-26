@@ -4,6 +4,8 @@
 #include <cstring>
 #include <memory>
 #include <grpc/support/log.h>
+#include <map>
+#include <chrono>
 
 #include "mapreduce_spec.h"
 #include "file_shard.h"
@@ -22,6 +24,8 @@ using masterworker::MapEmit;
 using masterworker::ReduceIn;
 using masterworker::ReduceEmit;
 using masterworker::Shard;
+
+using std::make_pair;
 
 
 /* CS6210_TASK: Handle all the bookkeeping that Master is supposed to do.
@@ -45,6 +49,10 @@ class Master {
 		string user_id_;
 		vector<FileShard> fileShards_;
 		MapReduceSpec spec_; 
+		vector<string> int_files;
+		std::map<string,int> reduce_status;
+		// key = worker, int1 = shard, int2 = status
+		std::map<int,int> map_status;
 
 };
 
@@ -53,8 +61,7 @@ public:
 	explicit MapReduceClient(std::shared_ptr<Channel> channel) 
 		: stub_(MapperReducer::NewStub(channel)) {}
 
-	void map(const MapReduceSpec& spec, const FileShard fs) {
-		std::cout << "Mapping" << std::endl;
+	int map(const MapReduceSpec& spec, const FileShard fs, vector<string>& int_files) {
 		MapIn request;
 
 		request.set_user_id(spec.user_id);
@@ -114,23 +121,30 @@ public:
 		GPR_ASSERT(ok);
 
 		if (status.ok()){
-			std::cout << "We got a response from mapper" << std::endl;
+			
+			for(const auto r : reply.output_file()) {
+				int_files.push_back(r);
+			}
+
 		} else {
 			std::cout << "Error: "<< status.error_code() << " Details: " << status.error_details() << std::endl;
-			return; 
+			return 1; 
 		}
-		return;
+		return 0;
 
 	}
 
-	void reduce(const MapReduceSpec& spec, const string int_file) {
+	int reduce(const MapReduceSpec& spec, const string int_file,const string o_file) {
 		std::cout << "Reducing" << std::endl;
 		
 		ReduceIn request;
 		
 		request.set_user_id(spec.user_id);
+		
+		request.set_out_file(o_file);
 		request.set_int_file(int_file);
-		request.set_out_dir(spec.output_dir);
+		//string i_file = request.add_int_file();
+		//i_file->set_file(int_file);
 
 		ReduceEmit reply;
 
@@ -156,9 +170,9 @@ public:
 			std::cout << "We got a response from reducer" << std::endl;
 		} else {
 			std::cout << "Error: "<< status.error_code() << " Details: " << status.error_details() << std::endl;
-			return; 
+			return 1;  
 		}
-		return;
+		return 0;
 	}
 
 private:
@@ -174,15 +188,30 @@ Master::Master(const MapReduceSpec& mr_spec, const std::vector<FileShard>& file_
 
 /* CS6210_TASK: Here you go. once this function is called you will complete whole map reduce task and return true if succeeded */
 bool Master::run() {
-	std::cout << "Run master" << std::endl;	
-
-	for (auto fs: fileShards_){		
-		MapReduceClient client(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
-		// INPUT FILES 
-		client.map(spec_, fs);
-		client.reduce(spec_, "test");
-	}
+	vector<string> status;
 	
+	for (auto fs: fileShards_){		
+		
+		std::cout << "Shard " << fs.shard_num << std::endl;
+		for(auto client_name: worker_address_) {
+			std::cout << "worker " << client_name << std::endl;
+			map_status.insert(std::make_pair(fs.shard_num, 2)); // using 2 as busy
+			MapReduceClient client(grpc::CreateChannel(client_name, grpc::InsecureChannelCredentials()));
+			map_status.insert(std::make_pair(fs.shard_num, client.map(spec_, fs, int_files))); // 1 is failed, 0 is success
+		}
+	}
 
+	bool leave = false;
+
+	for (auto f: int_files) {
+		std::cout << "Reducing " << f << std::endl;
+		for(auto client_name: worker_address_) {
+			reduce_status.insert(std::make_pair(f, 2)); // using 2 as busy
+			MapReduceClient client(grpc::CreateChannel(client_name, grpc::InsecureChannelCredentials()));
+			reduce_status.insert(std::make_pair(f, client.reduce(spec_, f,  f + "-out"))); // 1 is failed, 0 is success
+		}
+	}
+	// wait till everyone is done
+	
 	return true;
 }

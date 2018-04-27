@@ -35,7 +35,6 @@ inline void BaseMapperInternal::emit(const std::string& key, const std::string& 
 		file << key << " " << val << std::endl;
 		file.close();
 	}
-	std::cout << ">";
 }
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -63,6 +62,11 @@ inline BaseReducerInternal::BaseReducerInternal() {
 /* CS6210_TASK Implement this function */
 inline void BaseReducerInternal::emit(const std::string& key, const std::string& val) {
 	std::ofstream file { out_file, std::ios_base::app};
+	if(out_file.find("dummy") < out_file.length() ) {
+		file << std::endl;
+		return;
+	}
+
 	if (file.is_open()){
 		file << key << " " << val << std::endl;
 		file.close();

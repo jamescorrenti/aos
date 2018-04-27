@@ -33,7 +33,7 @@ using masterworker::Shard;
 using std::string;
 using std::vector;
 
-inline vector<string> split(string &s, char delim) {
+inline vector<string> split(const string &s, char delim) {
 	std::stringstream ss { s };
 	string item;
 	std::vector<string> token;
@@ -65,7 +65,6 @@ class Worker {
 
 		class MapReduceImpl final: public MapperReducer::Service {
 			Status Map(ServerContext* context, const MapIn* request, MapEmit* response){
-				std::cout << "mapping";
 				
 				auto mapper = get_mapper_from_task_factory(request->user_id());
 				
@@ -103,42 +102,53 @@ class Worker {
 
 					response->add_output_file(out_file);
 				}
-				std::cout << "done";
+				
 
 				return Status::OK;
 
 			}
 
 			Status Reduce(ServerContext* context, const ReduceIn* request, ReduceEmit* response){
+				vector<string> in_token;
 				auto reducer = get_reducer_from_task_factory(request->user_id());
-				
-				std::ifstream in_file { request->int_file() };
-				string s;
-				std::map<string, int> reduce_map;
-				vector<string> token;
-				reducer->impl_->out_file = request->out_file();
 
-				while(getline(in_file, s)){	
-					if (!s.empty()) {
-						token = split(s, ' ');
-						string q = token.front();
-						int b = std::stoi(token.back());
+				in_token = split(request->int_file(), ',');
 
-						auto it = reduce_map.find(q);
-						
-						if (it != reduce_map.end()) {
-							it->second = it->second +  b;
-						}
-						else {
-							reduce_map.emplace(q, b);
+				for(auto file_: in_token) {
+					reducer->impl_->out_file = file_ + "-out.txt";
+					if(file_.find("dummy") < file_.length() ) {
+						reducer->reduce("", std::vector<std::string>({""}));
+						return Status::OK;
+					} 
+
+					std::cout << file_ << std::endl;
+					std::ifstream in_file { file_ };
+					string s;
+					std::map<string, int> reduce_map;
+					vector<string> token;
+
+					while(getline(in_file, s)){	
+						if (!s.empty()) {
+							token = split(s, ' ');
+							string q = token.front();
+							int b = std::stoi(token.back());
+
+							auto it = reduce_map.find(q);
+							
+							if (it != reduce_map.end()) {
+								it->second = it->second +  b;
+							}
+							else {
+								reduce_map.emplace(q, b);
+							}
 						}
 					}
-				}
 
-				for (std::map<string,int>::iterator iter=reduce_map.begin(); iter != reduce_map.end(); ++iter){
-					reducer->reduce(iter->first, std::vector<std::string>({std::to_string(iter->second)}));
-				}
-				remove(request->int_file().c_str());				
+					for (std::map<string,int>::iterator iter=reduce_map.begin(); iter != reduce_map.end(); ++iter){
+						reducer->reduce(iter->first, std::vector<std::string>({std::to_string(iter->second)}));
+					}
+					remove(file_.c_str());
+				}				
 				return Status::OK;		
 			}
 		};

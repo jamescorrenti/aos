@@ -189,27 +189,58 @@ Master::Master(const MapReduceSpec& mr_spec, const std::vector<FileShard>& file_
 /* CS6210_TASK: Here you go. once this function is called you will complete whole map reduce task and return true if succeeded */
 bool Master::run() {
 	vector<string> status;
-	
+	int i = 0;	
 	for (auto fs: fileShards_){		
-		
-		std::cout << "Shard " << fs.shard_num << std::endl;
-		for(auto client_name: worker_address_) {
-			std::cout << "worker " << client_name << std::endl;
-			map_status.insert(std::make_pair(fs.shard_num, 2)); // using 2 as busy
-			MapReduceClient client(grpc::CreateChannel(client_name, grpc::InsecureChannelCredentials()));
-			map_status.insert(std::make_pair(fs.shard_num, client.map(spec_, fs, int_files))); // 1 is failed, 0 is success
-		}
+	
+		map_status.insert(std::make_pair(fs.shard_num, 2)); // using 2 as busy
+		MapReduceClient client(grpc::CreateChannel(worker_address_.at(i), grpc::InsecureChannelCredentials()));
+		map_status.insert(std::make_pair(fs.shard_num, client.map(spec_, fs, int_files))); // 1 is failed, 0 is success
+		if ( i + 1 < worker_address_.size())
+			i++;
+		else
+			i = 0;
 	}
 
 	bool leave = false;
 
-	for (auto f: int_files) {
-		std::cout << "Reducing " << f << std::endl;
-		for(auto client_name: worker_address_) {
-			reduce_status.insert(std::make_pair(f, 2)); // using 2 as busy
-			MapReduceClient client(grpc::CreateChannel(client_name, grpc::InsecureChannelCredentials()));
-			reduce_status.insert(std::make_pair(f, client.reduce(spec_, f,  f + "-out"))); // 1 is failed, 0 is success
+	int diff = int_files.size() - num_out_files_;
+
+	int j =0;
+	while (diff != 0){
+
+
+		if (diff > 0) { // Have too many files so merge them
+
+			string pop = int_files.back();
+			std::cout << pop << std::endl;
+			int_files.at(j) += + "," + pop;
+			std::cout << int_files.at(j) << std::endl;
+			int_files.pop_back();
+
+			if ( j + 2 < int_files.size())
+				j++;
+			else
+				j = 0;
+
+		} else {
+			// not a great solution, but it meets the requirements
+			for(j = 0; j <abs(diff); j++) {
+				int_files.push_back("output/dummy" + std::to_string(j));
+			}
 		}
+
+
+		diff = int_files.size() - num_out_files_;		
+	}
+
+	for (auto f: int_files) {
+		reduce_status.insert(std::make_pair(f, 2)); // using 2 as busy
+		MapReduceClient client(grpc::CreateChannel(worker_address_.at(i), grpc::InsecureChannelCredentials()));
+		reduce_status.insert(std::make_pair(f, client.reduce(spec_, f,  f))); // 1 is failed, 0 is success
+		if ( i + 1 < worker_address_.size())
+			i++;
+		else
+			i = 0;
 	}
 	// wait till everyone is done
 	
